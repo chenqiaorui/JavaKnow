@@ -1,0 +1,211 @@
+什么是Shell？
+	简单来说“Shell变成就是对一堆linux命令进行逻辑处理”
+Shell编程的HelloWorld
+	1.新建一个文件：helloworld.sh: touch helloworld.sh
+	2.使脚本具有执行权限 chmod +x helloworld.sh
+	3.内容：
+	#!/bin/bash
+	echo "helloworld!"
+
+	其中，#表示注释。
+	4.执行： ./helloword.sh
+Shell变量：
+	1.自定义变量：仅在当前Shell实例子有效
+	2.Linux已定义的环境变量（如$PATH、$HOME,这类变量可直接使用）使用env可以查看所有的环境变量，2⃣️set命令既可以查看环境变量也可以查看自定义变量
+	3.Shell变量
+	例子：
+	#!/bin/bash
+	#自定义变量hello
+	hello=“helloworld”
+	echo $hello
+	echo "helloworld!"
+
+	变量命名注意事项：
+		1.命名只能使用英文字母，数字下划线，首个字符不能以数字开头，但可以用下划线开头
+		2.中间不用有空格
+		3.不能使用标点符号
+		4.不能使用bash中的关键字
+Shell字符串入门
+	字符串是shell变量中最常用的数据类型，可用单引号，也可双引号
+	示例1：
+	#!/bin/bash
+	name='rich'
+	hello='hello,i am '$name'
+	echo $hello
+
+	输出：hello,i am rich
+
+	示例2:字符串常用拼接
+	#!/bin/bash
+	name="rich"
+	#使用双引号拼接
+	greeting="hello,"$name"
+	greeting_1="hello,${name}"
+	echo $greeting $greeting_1
+	#使用单引号拼接
+	greeting_2='hello,'$name'
+	greeting_3='hello.${name}'
+	echo $greeting_2 $greeting_#
+
+	输出：
+	hello，rich hello rich
+	hello，rich hello, ${name}
+
+	示例3:获取字符串长度
+	#!/bin/bash
+	#获取字符串长度
+	name="rich"
+	echo ${#name} //输出4
+	#或者
+	echo length "$name"; //输出4
+
+	1）使用expr命令时，表达式中的运算符必须包含空格，如果不包含空格，将会输出表达式本身
+	如：expr 5+5 // 直接输出5+5
+	expr 5 + 5 // 输出10
+
+	2）对于某些运算符，还需要我们用\进行转义
+	如expr 5 * 6 //输出错误
+	expt 5 \* 6 //输出30
+
+	3) 截取子字符串
+	#从字符串第一个字符开始往后截取10个字符
+	str=“richmanhaha”
+	echo ${str:0:10} 
+
+Shell数组
+	bash只支持一维数组，并且没有限定数组大小
+	示例：
+	#!/bin/bash
+	array=(1 2 3 4 5);
+	#获取数组长度
+	length=${#array[@]}
+	#或者
+	length2=${#array[*]}
+	#输出数组长度
+	echo $length // 5
+	echo $length2  // 5
+	# 输出数组第三个元素
+	echo ${array[2]} // 3
+	unset array[1] //删除下标为1的元素也就是删除第二个元素
+	for i in ${array[@]};do echo $i ;done // 遍历数组，输出 1 3 4 5
+	unset arr_number; #删除数组中所有元素
+	for i in ${array[@]};do echo $i ;done //遍历数组，数组元素为空，么有任何输出内容
+Shell运算符
+	支持：
+		算数运算符
+		关系运算符
+		布尔运算符
+		字符串运算符
+		文件测试运算符
+	1.算数运算符：
+	+、- 、*、/、%、=、==、!=
+	示例：
+	#!/bin/bash
+	a=3;b=3;
+	val=`expr $a + $b`
+	#输出6
+	2.关系运算符：
+	-eq（检测两个数是否相等，相等返回true）
+	-ne（检测两个数是否不相等，是则返回true）
+	-gt（检测左边是否大于右边的数）
+	-lt（检测左边的数是否小于右边的数）
+	-ge（检测左边的数是否大于等于右边的）
+	-le（检测左边的数是否小于等于右边的）
+	示例：
+	通过一个简单的示例演示关系运算符的使用，下面Shell程序的作用时当score=100的时候输出A否则输出B
+	#!/bin/bash
+	score=90;
+	maxscore=100;
+	if [ score -eq $maxscore]
+	then
+		echo "A"
+	else
+		echo "B"
+	fi
+	#输出结果：B
+	3.逻辑运算符
+	&&和||
+	示例：
+	#!/bin/bash
+	a=$(( 1 && 0))
+	#输出：0；逻辑与运算只有相与的两边都是1，与的结果才是1
+Shell流程控制
+	1.if条件语句
+	简单的if else-if else 的条件语句示例
+	#!/bin/bash 
+	a=3;
+	b=9;
+	if [ $a -eq $b]
+	then
+		echo "a=b"
+	elif [ $a -gt $b]
+	then 
+		echo "a大于b"
+	else
+		echo "a小于b"
+	fi
+	#输出结果：a小于b
+	2.for循环语句
+	1）输出当前列表的数据：
+	for loop in 1 2 3 4 5
+	do
+		echo "the value is $loop"
+	done
+	2）产生10个随机数
+	for i in {0..9};
+	do
+		echo $RANDOM;
+	done
+	3）输出1到5
+	通常情况下shell变量调用需要加$，但是for中的(())不需要
+	#!/bin/bash
+	for((i=1;i<=5;i++));do
+		echo $i;
+	done;
+	3.while语句
+	1)基本的while循环语句
+	#!/bin/bash
+	int=1
+	while(( $int<=5))
+	do
+		echo $int
+		let "int++"
+	done
+	2)while循环可用于读取键盘信息
+		echo '按下<CTRL-D> 退出'
+		echo -n '输入你最喜欢的电影:'
+		while read FILM
+		do 
+			echo '你最喜欢的电影是$FILM'
+		done
+Shell函数
+	1）不带参数没有返回值的函数
+	#!/bin/bash
+	hello(){
+		echo "这是我第一个shell函数"	
+	}
+	2）有返回值的函数
+	输入两个数字之后相加并返回结果
+	#!/bin/bash
+	funWithReturn(){
+		echo "输入第一个数字："
+		read aNum
+		echo "输入第二个数字："
+		read anotherNum
+		echo "两个数字分别为$aNum 和 $anotherNum !"
+		return $(( $aNum+$anotherNum))
+	}
+	funWithReturn
+	3)带参数的函数
+	#!/bin/bash
+	funWithPara(){
+		echo "第一个参数 $1 !"
+		echo "参数总数有 $# 个"
+		echo "作为一个字符串输出所有参数 $* !"
+	}
+	funWithPara 1
+	#输出结果：
+	第一个参数 1 !
+	参数总数有 1 个
+	作为一个字符串输出所有参数 1 !
+	
