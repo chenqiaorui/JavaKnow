@@ -28,5 +28,88 @@ AOP
 	2.@RestController返回Json或XML形式的数据
 	但RestController只返回对象，对象数据直接以JSON或XML形式写入HTTP响应（Response）中，这种情况属于RESTful Web服务，这也是目前日常开发所接触的最常用的情况（前后端分离）。
 	3.@Controller + @Responsebody 返回Json或Xml形式数据
-	如果你需要在Spring4之前开发RESTfulWeb服务的话，你需要使用@Controller
+	如果你需要在Spring4之前开发RESTfulWeb服务的话，你需要使用@Controller并结合@ResponseBody注解，也就是说@Controller + @ResponseBody = @RestController。
+		@ResponseBody 注解的作用是将Controller的方法返回的对象通过适当的转换器转换为指定的格式之后，写入到HTTP响应对象的body中，通常用来返回Json或者XMl数据。
+4.Spring IOC & AOP
+	IOC （Inverse of Control:控制反转）是一种设计思想，就是 将原本在程序中手动创建对象的控制权，交给Spring框架来管理。IOC在其他语言中也有应用，非Spring特有。IoC容器是Spring用来实现IoC的载体，IoC容器实际上就是个Map，Map中存放的是各种对象。
+
+	将对象之间的相互依赖关系交给IoC容器来管理，并由IoC容器完成对象注入。这样可以很大程度上简化应用的开发，把应用从复杂的依赖关系中解放出来，IoC就是像一个工厂，当我们需要建一个对象的时候，只需要配置好配置文件/注解即可，完全可以不用考虑对象是如何被创建出来的。在实际项目中一个Service类可能有几百甚至上千个类作为它的底层，假如我们需要示例话这个Service，你可能要每次都要搞清这个Service所有底层类的构造函数，这可能会把人逼疯，如果利用IoD的话，你只需配置好，然后在需要的地方引用就好，这大大增加了项目的可维护性且降低了开发难度。
+
+	Spring时代我嗯一般通过XML来配置Bean，后来开发人员觉得XML配置不太好，于是Springboot注解配置就慢慢开始流行起来了。
+
+	Spring IoC的初始化过程：
+		XML------（读取）Resource--（解析BeanDefinition）--（注册）BeanFactory
+	
+	AOP（Aspect-oriented Programming：面向切面编程）能够将那些与业务性无关，却为业务模块所共同调用的逻辑或责任（例如事务处理、日志管理、权限控制等封装起来），便于减少系统等重复代码，降低模块之间的耦合度，并有利于未来的可拓展性和可维护性。
+
+	Spring AOP就是基于动态
+	代理的，如果要代理的对象，实现了某个接口，那么Spring AOP会使用JDK Proxy，去创建代理对象，而对于没有实现接口的对象，就无法使用JDK Proxy去进行代理了，这是后Spring AOP会使用Cglib，这是后Spring AOP会使用Cglib生成一个被代理对象的子类作为处理。
+	当然你也可以使用AspectJ，Spring AOP已经集成lAspectJ，AspectJ应该算得上是Java生态系统中最完整的AOP框架了。
+	使用AOP之后我们可以把一些通用功能抽象出来，在需要需用的地方直接使用即可，这样大大简化了代码量。
+
+	4.2Spring AOP和AspectJ AOP有什么区别？
+		Spring AOp属于运行时增强，而AspectJ是编译时增强。Spring AOP基于代理（Proxying），而AspectJ基于字节码操作。
+
+		Spring AOP已经集成了AspectJ，AspectJ应该算得上是Java生态系统中最完整的AOP框架了。AspectJ相比SpringAOP功能更加强大，但是SpringAOP相对来说更简单，如果我们的切面比较少，那么两者性能差异不大。
+	5.Spring bean
+	5.1Spring中的bean的作用域有哪些？
+		singleton：唯一bean实例，Spring中的bean默认都是单例的。
+		prototype：每次请求都会创建一个新的实例。
+		request：每一次HTTP请求都会产生一个新的bean，该bean仅在当前HTTP request内有效。
+		session：每一次HTTP请求都会产生一个新的bean，该bean仅在当前HTTP session有效。
+		global-session：全局session作用域，仅仅在基于poetlet的wen应用中才有意义，Spring5已经没有了。
+	5.2Spring中的单例bean的线程安全问题了解吗？
+	5.3@Component和@Bean的区别是什么？
+		1.作用对象不同：@Component作用于类，而@Bean注解作用于方法。
+		2.@Componet通常是通过类路径扫描来自动侦测以及自动装配到Spring容器中（我们可以使用@ComponentScan注解定义要扫描的路径从中找出标记了需要装配的类，自动装配到Spring到bean容器中）@Bean注解通常是我们在标有该注解的方法中定义产生这个bean，@Bean告诉了Spring这是某个类的实例，当我需要用它的时候还给我。
+		3.@Bean注解比Compnent注解的自定义性更强，而且很多地方我们只能通过@Bean注解来注册bean。比如当我们引用第三方库中的类需要装配到Spring容器时，则只能通过@Bean来实现。
+	@Bean注解示例：
+	@Configuration
+	public class AppConfig{
+		@Bean
+		public TransferService transferService() {
+			return new TeansferSerrviceimpl();
+		}
+	5.4讲一个类声明为Spring到bean的注解有哪些？
+		我们一般使用@Autowired注解自动装配bean，要把类标识成可用于@Autowired注解自动装配到bean的类，采用以下注解可实现：
+			@Componet：通用的注解，可标注任意类为Spring组件。如果一个Bean不知道属于哪个层，可以用@Componen
+		@Repository：对应持久层即Dao层，主要用于数据库相关擦耦走
+		@Service 对应服务层，主要设计一些复杂的逻辑，需要用到Dao层
+		@Controller：对应SpringMVC控制层，主要用户接收请求并调用Service层返回数据给前端页面
+	5.5Spring中bean的生命周期
+		1.Bean容器找到配置文件中Spring Bean的定义
+		2.Bean容器利用Java Reflection API创建一个Bean的实例
+		3.如果设计到一些属性值利用set（）方法设置一些属性值
+		4.如果Bean使用了BeanNameAware接口，调用setbeanClassLoader()方法，传入ClassLoader对象的实例
+6.Spring MVC
+	用户发起请求--控制器（接收请求-调用业务类-派发页面）--交给模式层处理-视图渲染
+6.2SpringMVC工作流程
+流程说明：
+	1.客户端请求，请求发到DispatchServlet
+	2.DispatchServlet根据请求信息调用HandleMapping，解析请求对应的Handler。
+	3.解析到对应的Handler（也就是我们所说的Controller控制器），开始由HandlerAdapter适配器处理。
+	4.HandlerAdapter会根据Handler来调用真正的处理器开处理请求，并处理相应的业务逻辑。
+	5.处理器处理完业务逻辑后，会返回一个ModelAndView对象，Model时返回的数据对象，View是个逻辑上的View。
+	6.ViewResolver会根据逻辑View查找实际的View
+	7.DispaterServlet会把返回的model传给View
+	8.把View返回给请求者
+7.Spring框架中用到了哪些设计模式
+	1.工厂设计模式：Spring使用工厂模式通过BeanFactory、ApplicationContext创建bean对象。
+	2.代理设计模式：SpringAOP功能的实现
+	3.单例设计模式：Spring中的Bean都是单例的
+	模板方法模式：Spring中jdbcTemplate、hibernateTemplate等以Template结尾的对数据库操作的类，他们就使用到了模板模式。
+	4.包装器设计模式：我们的项目需要连接多个数据库，而且不同的客户在每次访问中根据需要回去访问不同的数据库。这种模式让我们可以根据客户的需求能够动态切换不同的数据源。
+	5.观察者模式：Spring时间驱动模型就是观察者模式很经典的一个应用。
+	6.适配器模式：SpringAOp的增强或通知（advice）使用到了适配器模式、springMVC也是用到了适配器模式适配Controller
+8.Spring事务
+8.1Spring管理事务的方式有几种？
+	1.编程式事务，在代码中硬编码
+	2.声明式事务，在配置中配置
+声明式事务又分为两种：
+	1.基于XML的声明式事务
+	2.基于注解的声明式事务
+9.JPA
+	9.1如何使用JPA在数据库中非持久化一个字段
+	@Transient
+
 

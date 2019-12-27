@@ -1,0 +1,43 @@
+1.Mysql基本操作
+//windows服务，启动Mysql
+net start mysql
+--创建Windows服务
+sc create mysql binpath= mysqld_bin_path(注意: 等号与值之间有空格)
+//连接与断开服务器
+mysql -h 地址 -P 端口 -u 用户名 -p 密码
+SHOW PROCESSLIST -- 显示哪些线程正在进行
+SHOW VARIABLE -- 显示系统变量信息
+
+2.数据库操作
+	-- 查看当前数据库
+		SELECT DATABASE();
+	-- 显示当前时间、用户名、数据库版本
+		SELECT now(), user(), version();
+	-- 创建数据库
+		CREATE DATABASE [IF NOT EXISTS] 数据库名 数据库选项
+		数据库选项：
+			CHARACTER SET charset_name
+			COLLATE collation_name
+	-- 查看已有库
+		SHOW DATABASES [ LIKE 'PATTERN']
+	-- 查看当前库信息
+		SHOW CREATE DATABASE 数据库名
+	-- 修改库的选项信息
+		ALTER DATABASE 库名 选项信息
+	-- 删除库
+		DROP DATABASE [ IF EXISTS ] 数据库名
+			同时删除该数据库相关的目录及其目录内容
+3.表的操作
+	-- 创建表
+		CREATE [TEMPORARY] TABLE[ IF NOT EXISTS] [库名.]表名 ( 表的结构定义)[ 表选项]
+		1.每个字段必须有数据类型
+		2.最后一个字段后不能有逗号
+		3.TEMPORARY 临时表，回话结束后表自动消失
+		对于字段的定义：
+			字段名 数据类型 [NOT NULL | NULL] [DEFAULT default_value] [AUTO_INCREMENT] [UNIQUE [KEY] | [PRIMARY] KEY] [COMMENT 'string']
+	-- 表选项
+		-- 字符集
+			CHARSET=charset_name
+			如果没有设定，则使用数据库字符集
+		--存储引擎
+			ENGINE =engine_name
